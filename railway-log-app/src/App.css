@@ -1,0 +1,11 @@
+.mainContainer {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.contentContainer {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 60px; /* spazio per BottomNav */
+}
