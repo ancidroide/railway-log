@@ -1,14 +1,14 @@
 import { useState } from "react"
 import { TextField, Button, Box, Stack, Card, CardContent, Typography } from "@mui/material"
 
-const TrainForm = ({ selectedDate }) => {
+const TrainForm = ({ existingTrains, selectedDate }) => {
     const [trainForm, setTrainForm] = useState({
         numero: '',
         partenza: '', 
         arrivo: '',
         materiale: ''
     })
-    const [trains, setTrains] = useState([])
+    const [trains, setTrains] = useState(existingTrains||[])
 
     const handleAddTrain = (event) => {
         event.preventDefault()
@@ -16,8 +16,16 @@ const TrainForm = ({ selectedDate }) => {
             const newTrain = {...trainForm, date: selectedDate, id: Date.now()}
             const newTrains = [...trains, newTrain]
 
+            const dateStr = selectedDate.format('YYYY-MM-DD')
+            const services = JSON.parse(localStorage.getItem('services') || '{}')
+
+            if (!services[dateStr]) {
+                services[dateStr] = { date: dateStr, trains: [] }
+            } 
+
+            services[dateStr].trains.push(newTrain)
+            localStorage.setItem('services', JSON.stringify(services))
             setTrains(newTrains)
-            localStorage.setItem('trains', JSON.stringify(newTrains))
             setTrainForm({ numero: '', partenza: '', arrivo: '', materiale: ''})
         }
     }

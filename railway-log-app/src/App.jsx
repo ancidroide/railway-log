@@ -1,7 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './App.css'
-import Calendar from './pages/Calendar'
-import NewService from './pages/NewService'
+import Home from './pages/Home'
 import History from './pages/History'
 import Settings from './pages/Settings'
 import BottomNav from './components/BottomNav'
@@ -16,8 +15,7 @@ const App = () => {
         <div className="mainContainer"> 
           <div className="contentContainer"> 
             <Routes>
-              <Route path="/" element={<Calendar />} />
-              <Route path="/new" element={<NewService />} />
+              <Route path="/" element={<Home />} />
               <Route path="/history" element={<History />} />
               <Route path="/settings" element={<Settings />} />
             </Routes>
