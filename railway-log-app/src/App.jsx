@@ -1,29 +1,35 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './App.css'
-import Home from './pages/Home'
-import History from './pages/History'
-import Settings from './pages/Settings'
-import BottomNav from './components/BottomNav'
+import CalendarView from './pages/CalendarView'
+import DayView from './pages/DayView'
+import HistoryView from './pages/HistoryView'
+import SettingsView from './pages/SettingsView'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import { TrainProvider } from './context/TrainContext'
+import BottomNav from './components/layout/BottomNav'
+
 
 const App = () => {
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <BrowserRouter>
-        <div className="mainContainer"> 
-          <div className="contentContainer"> 
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/history" element={<History />} />
-              <Route path="/settings" element={<Settings />} />
-            </Routes>
+    <TrainProvider>
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <BrowserRouter>
+          <div className="mainContainer"> 
+            <div className="contentContainer"> 
+              <Routes>
+                <Route path="/" element={<CalendarView />} />
+                <Route path="/day/:date" element={<DayView />} />
+                <Route path="/history" element={<HistoryView />} />
+                <Route path='/settings' element={<SettingsView />} />
+              </Routes>
+            </div>
+            <BottomNav />
           </div>
-          <BottomNav /> {/* Fissa in basso */}
-        </div>
-    </BrowserRouter>
-  </LocalizationProvider>
+      </BrowserRouter>
+    </LocalizationProvider>
+  </TrainProvider>
   )
 }
 

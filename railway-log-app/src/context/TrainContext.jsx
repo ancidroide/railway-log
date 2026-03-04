@@ -2,17 +2,17 @@
 // Gestione stato globale con Time-Based data structure
 import { createContext, useContext, useState, useEffect } from 'react'
 
-const STORAGE_KEY = 'railway-log-services' // Chiave per localStorage
+const STORAGE_KEY = 'railway-log-services'
 const TrainContext = createContext(null)
 
-// Provider: il componente che wrappa l'app e fornisce i dati
-export const TrainProvider = ({ children }) => {  
+export const TrainProvider = ({ children }) => {
+  
+  // STATE: dizionario { "2026-03-01": [{ train }, { train }] }
   const [services, setServices] = useState(() => {
     const saved = localStorage.getItem(STORAGE_KEY)
     return saved ? JSON.parse(saved) : {}
   })
 
-  // STATE: data selezionata (per navigazione)
   const [selectedDate, setSelectedDate] = useState(null)
 
   // EFFECT: salva su localStorage ogni volta che services cambia
@@ -20,27 +20,26 @@ export const TrainProvider = ({ children }) => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(services))
   }, [services])
 
-  // HELPER: genera ID univoco per treni e note
+  // HELPER: genera ID univoco
   const generateId = () => {
     return Date.now().toString(36) + Math.random().toString(36).substr(2)
   }
 
   // API GETTERS:
   
-  // Restituisce i treni per una data
+  // Restituisce i treni per una data (array diretto)
   const getTrains = (date) => {
-    const day = services[date]
-    return day ? day.trains : []
+    return services[date] || []
   }
 
-  // Restituisce array di date con servizi (per calendario)
+  // Restituisce array di date con servizi
   const getDatesWithService = () => {
     return Object.keys(services)
   }
 
   // Verifica se una data ha servizi
   const hasService = (date) => {
-    return !!services[date] && services[date].trains.length > 0
+    return !!(services[date] && services[date].length > 0)
   }
 
   // API TRAIN OPERATIONS:
@@ -58,27 +57,21 @@ export const TrainProvider = ({ children }) => {
     
     setServices(prev => ({
       ...prev,
-      [date]: {
-        date,
-        trains: [...(prev[date]?.trains || []), newTrain]
-      }
+      [date]: [...(prev[date] || []), newTrain]
     }))
   }
 
-  // Modifica un treno esistente
+  // Modifica un treno
   const updateTrain = (date, trainId, updates) => {
     setServices(prev => {
-      const day = prev[date]
-      if (!day) return prev
+      const trains = prev[date]
+      if (!trains) return prev
       
       return {
         ...prev,
-        [date]: {
-          ...day,
-          trains: day.trains.map(t => 
-            t.id === trainId ? { ...t, ...updates } : t
-          )
-        }
+        [date]: trains.map(t => 
+          t.id === trainId ? { ...t, ...updates } : t
+        )
       }
     })
   }
@@ -86,15 +79,12 @@ export const TrainProvider = ({ children }) => {
   // Elimina un treno
   const deleteTrain = (date, trainId) => {
     setServices(prev => {
-      const day = prev[date]
-      if (!day) return prev
+      const trains = prev[date]
+      if (!trains) return prev
       
       return {
         ...prev,
-        [date]: {
-          ...day,
-          trains: day.trains.filter(t => t.id !== trainId)
-        }
+        [date]: trains.filter(t => t.id !== trainId)
       }
     })
   }
@@ -109,19 +99,16 @@ export const TrainProvider = ({ children }) => {
     }
     
     setServices(prev => {
-      const day = prev[date]
-      if (!day) return prev
+      const trains = prev[date]
+      if (!trains) return prev
       
       return {
         ...prev,
-        [date]: {
-          ...day,
-          trains: day.trains.map(t => 
-            t.id === trainId 
-              ? { ...t, notes: [...t.notes, newNote] }
-              : t
-          )
-        }
+        [date]: trains.map(t => 
+          t.id === trainId 
+            ? { ...t, notes: [...t.notes, newNote] }
+            : t
+        )
       }
     })
   }
@@ -129,24 +116,21 @@ export const TrainProvider = ({ children }) => {
   // Elimina nota da un treno
   const deleteNote = (date, trainId, noteId) => {
     setServices(prev => {
-      const day = prev[date]
-      if (!day) return prev
+      const trains = prev[date]
+      if (!trains) return prev
       
       return {
         ...prev,
-        [date]: {
-          ...day,
-          trains: day.trains.map(t => 
-            t.id === trainId 
-              ? { ...t, notes: t.notes.filter(n => n.id !== noteId) }
-              : t
-          )
-        }
+        [date]: trains.map(t => 
+          t.id === trainId 
+            ? { ...t, notes: t.notes.filter(n => n.id !== noteId) }
+            : t
+        )
       }
     })
   }
 
-  // Oggetto valore passato ai componenti
+  // Valore passato ai componenti
   const value = {
     services,
     selectedDate,
@@ -168,7 +152,7 @@ export const TrainProvider = ({ children }) => {
   )
 }
 
-// Hook personalizzato per usare il context
+// Hook per usare il context
 // eslint-disable-next-line react-refresh/only-export-components
 export const useTrain = () => {
   const context = useContext(TrainContext)
